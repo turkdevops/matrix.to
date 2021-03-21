@@ -1,8 +1,7 @@
 # Matrix.to
 
-Matrix.to is a simple url redirection service for the Matrix.org ecosystem
-which lets users share links to matrix entities without being tied to a
-specific app.
+Matrix.to is a simple url redirection service for the Matrix.org ecosystem which
+lets users share links to matrix entities without being tied to a specific app.
 Stylistically it serves as a landing page for rooms and communities.
 
 Matrix.to preserves user privacy by not sharing any information about the links
@@ -15,16 +14,16 @@ previews will be loaded.
 
 Anyone is welcome to host their own version of the Matrix.to app - Matrix.to is
 **not** a single point of failure on the Matrix ecosystem; if the matrix.to
-deployment ever failed, users could trivially copy the room/user/message
-details out of the URLs and follow them manually, or change the hostname to
-point at an alternative deployment of the service.  The Matrix.to service could
-also be hosted in an immutable/signed environment such as IPFS to further
-increase its availability and avoid tampering.
+deployment ever failed, users could trivially copy the room/user/message details
+out of the URLs and follow them manually, or change the hostname to point at an
+alternative deployment of the service. The Matrix.to service could also be
+hosted in an immutable/signed environment such as IPFS to further increase its
+availability and avoid tampering.
 
 The matrix.to URL scheme is
 
 | Entity type: | Example URL                                                       |
-|--------------|-------------------------------------------------------------------|
+| ------------ | ----------------------------------------------------------------- |
 | Rooms:       | https://matrix.to/#/#matrix:matrix.org                            |
 | Rooms by ID: | https://matrix.to/#/!cURbafjkfsMDVwdRDQ:matrix.org                |
 | Users:       | https://matrix.to/#/@matthew:matrix.org                           |
