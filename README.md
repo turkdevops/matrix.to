@@ -43,7 +43,11 @@ practice for legibility we bend the rules and include it verbatim)
 You can discuss matrix.to in
 [`#matrix.to:matrix.org`](https://matrix.to/#/#matrix.to:matrix.org)
 
-A development build of matrix-two can be found at https://matrix-to.vercel.app
+## Build Instructions
 
-A preview of all components can be found at
-https://matrix-to-storybook.vercel.app
+1. Install [yarn](https://classic.yarnpkg.com/en/docs/install)
+1. `git clone https://github.com/matrix-org/matrix.to`
+1. `cd matrix.to`
+1. `yarn`
+1. `yarn start`
+1. Go to http://localhost:5000 in your browser
