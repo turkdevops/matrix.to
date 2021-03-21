@@ -14,30 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {createEnum} from "./utils/enum.js";
+import { createEnum } from "./utils/enum.js";
 
 export const Platform = createEnum(
-	"DesktopWeb",
-	"MobileWeb",
-	"Android",
-	"iOS",
-	"Windows",
-	"macOS",
-	"Linux"
+    "DesktopWeb",
+    "MobileWeb",
+    "Android",
+    "iOS",
+    "Windows",
+    "macOS",
+    "Linux"
 );
 
 export function guessApplicablePlatforms(userAgent, platform) {
-	// return [Platform.DesktopWeb, Platform.Linux];
+    // return [Platform.DesktopWeb, Platform.Linux];
     let nativePlatform;
     let webPlatform;
     if (/android/i.test(userAgent)) {
         nativePlatform = Platform.Android;
         webPlatform = Platform.MobileWeb;
-    } else if ( // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios/9039885
-        (
-            /iPad|iPhone|iPod/.test(navigator.platform) ||
-            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-        ) && !window.MSStream
+    } else if (
+        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios/9039885
+        (/iPad|iPhone|iPod/.test(navigator.platform) ||
+            (navigator.platform === "MacIntel" &&
+                navigator.maxTouchPoints > 1)) &&
+        !window.MSStream
     ) {
         nativePlatform = Platform.iOS;
         webPlatform = Platform.MobileWeb;
@@ -55,10 +56,11 @@ export function guessApplicablePlatforms(userAgent, platform) {
 }
 
 export function isWebPlatform(p) {
-	return p === Platform.DesktopWeb || p === Platform.MobileWeb;
+    return p === Platform.DesktopWeb || p === Platform.MobileWeb;
 }
 
-
 export function isDesktopPlatform(p) {
-	return p === Platform.Linux || p === Platform.Windows || p === Platform.macOS;
+    return (
+        p === Platform.Linux || p === Platform.Windows || p === Platform.macOS
+    );
 }

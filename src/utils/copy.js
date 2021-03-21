@@ -33,17 +33,23 @@ export function copy(text, parent) {
 }
 
 export function copyButton(t, getCopyText, label, classNames) {
-    return t.button({className: `${classNames} icon copy`, onClick: evt => {
-        const button = evt.target;
-        if (copy(getCopyText(), button)) {
-            button.innerText = "Copied!";
-            button.classList.remove("copy");
-            button.classList.add("tick");
-            setTimeout(() => {
-                button.classList.remove("tick");
-                button.classList.add("copy");
-                button.innerText = label;
-            }, 2000);
-        }
-    }}, label);
+    return t.button(
+        {
+            className: `${classNames} icon copy`,
+            onClick: (evt) => {
+                const button = evt.target;
+                if (copy(getCopyText(), button)) {
+                    button.innerText = "Copied!";
+                    button.classList.remove("copy");
+                    button.classList.add("tick");
+                    setTimeout(() => {
+                        button.classList.remove("tick");
+                        button.classList.add("copy");
+                        button.innerText = label;
+                    }, 2000);
+                }
+            },
+        },
+        label
+    );
 }

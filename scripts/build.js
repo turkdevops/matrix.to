@@ -15,38 +15,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// needed for legacy bundle
+import babel from "@rollup/plugin-babel";
+// needed because some of the polyfills are written as commonjs modules
+import commonjs from "@rollup/plugin-commonjs";
+// multi-entry plugin so we can add polyfill file to main
+import multi from "@rollup/plugin-multi-entry";
+// needed to find the polyfill modules in the main-legacy.js bundle
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import autoprefixer from "autoprefixer";
 import cheerio from "cheerio";
 import fs from "fs/promises";
 import path from "path";
-import xxhash from 'xxhashjs';
-import { rollup } from 'rollup';
+import { dirname } from "path";
 import postcss from "postcss";
+import cssvariables from "postcss-css-variables";
+import flexbugsFixes from "postcss-flexbugs-fixes";
 import postcssImport from "postcss-import";
-// needed for legacy bundle
-import babel from '@rollup/plugin-babel';
-// needed to find the polyfill modules in the main-legacy.js bundle
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-// needed because some of the polyfills are written as commonjs modules
-import commonjs from '@rollup/plugin-commonjs';
-// multi-entry plugin so we can add polyfill file to main
-import multi from '@rollup/plugin-multi-entry';
-import { terser } from "rollup-plugin-terser";
-import replace from "@rollup/plugin-replace";
 // replace urls of asset names with content hashed version
 import postcssUrl from "postcss-url";
-import cssvariables from "postcss-css-variables";
-import autoprefixer from "autoprefixer";
-import flexbugsFixes from "postcss-flexbugs-fixes";
+import { rollup } from "rollup";
+import { terser } from "rollup-plugin-terser";
+import { fileURLToPath } from "url";
+import xxhash from "xxhashjs";
 
-import {createClients} from "../src/open/clients/index.js";
+import { createClients } from "../src/open/clients/index.js";
 
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 const projectDir = path.join(dirname(fileURLToPath(import.meta.url)), "../");
 
 async function build() {
     // get version number
-    const version = JSON.parse(await fs.readFile(path.join(projectDir, "package.json"), "utf8")).version;
+    const version = JSON.parse(
+        await fs.readFile(path.join(projectDir, "package.json"), "utf8")
+    ).version;
     // clear target dir
     const targetDir = path.join(projectDir, "build/");
     await removeDirIfExists(targetDir);
@@ -54,27 +56,47 @@ async function build() {
     await fs.mkdir(path.join(targetDir, "images"));
     await fs.mkdir(path.join(targetDir, ".well-known"));
     const assets = new AssetMap(targetDir);
-    const imageAssets = await copyFolder(path.join(projectDir, "images"), path.join(targetDir, "images"));
+    const imageAssets = await copyFolder(
+        path.join(projectDir, "images"),
+        path.join(targetDir, "images")
+    );
     assets.addSubMap(imageAssets);
-    await assets.write(`bundle.js`, await buildJs("src/main.js", assets, ["src/polyfill.js"]));
-    await assets.write(`bundle.css`, await buildCss("css/main.css", targetDir, assets));
-    await assets.writeUnhashed(".well-known/apple-app-site-association", buildAppleAssociatedAppsFile(createClients()));
+    await assets.write(
+        `bundle.js`,
+        await buildJs("src/main.js", assets, ["src/polyfill.js"])
+    );
+    await assets.write(
+        `bundle.css`,
+        await buildCss("css/main.css", targetDir, assets)
+    );
+    await assets.writeUnhashed(
+        ".well-known/apple-app-site-association",
+        buildAppleAssociatedAppsFile(createClients())
+    );
     await assets.writeUnhashed("index.html", await buildHtml(assets));
     const globalHash = assets.hashForAll();
-    console.log(`built matrix.to ${version} (${globalHash}) successfully with ${assets.size} files`);
+    console.log(
+        `built matrix.to ${version} (${globalHash}) successfully with ${assets.size} files`
+    );
 }
 
 async function buildHtml(assets) {
-    const devHtml = await fs.readFile(path.join(projectDir, "index.html"), "utf8");
+    const devHtml = await fs.readFile(
+        path.join(projectDir, "index.html"),
+        "utf8"
+    );
     const doc = cheerio.load(devHtml);
     doc("link[rel=stylesheet]").attr("href", assets.resolve(`bundle.css`));
     const mainScripts = [
-        // this is needed to avoid hitting https://github.com/facebook/regenerator/issues/378
-        // which prevents the whole bundle to load, as our CSP headers don't allow unsafe-eval
-        // and I preferred this over disabling strict mode for the whole bundle
+        // this is needed to avoid hitting
+        // https://github.com/facebook/regenerator/issues/378 which prevents the
+        // whole bundle to load, as our CSP headers don't allow unsafe-eval and I
+        // preferred this over disabling strict mode for the whole bundle
         `<script type="text/javascript">window.regeneratorRuntime = undefined;</script>`,
-        `<script type="text/javascript" src="${assets.resolve(`bundle.js`)}"></script>`,
-        `<script type="text/javascript">bundle.main(document.body);</script>`
+        `<script type="text/javascript" src="${assets.resolve(
+            `bundle.js`
+        )}"></script>`,
+        `<script type="text/javascript">bundle.main(document.body);</script>`,
     ];
     doc("script#main").replaceWith(mainScripts.join(""));
     return doc.html();
@@ -91,8 +113,8 @@ function createReplaceUrlPlugin(assets) {
 async function buildJs(mainFile, assets, extraFiles = []) {
     // compile down to whatever IE 11 needs
     const babelPlugin = babel.babel({
-        babelHelpers: 'bundled',
-        exclude: 'node_modules/**',
+        babelHelpers: "bundled",
+        exclude: "node_modules/**",
         presets: [
             [
                 "@babel/preset-env",
@@ -100,9 +122,9 @@ async function buildJs(mainFile, assets, extraFiles = []) {
                     useBuiltIns: "entry",
                     corejs: "3",
                     targets: "IE 11",
-                }
-            ]
-        ]
+                },
+            ],
+        ],
     });
     // create js bundle
     const rollupConfig = {
@@ -110,40 +132,48 @@ async function buildJs(mainFile, assets, extraFiles = []) {
         // so polyfills are available in the global scope
         // if needed for the mainfile
         input: extraFiles.concat(mainFile),
-        plugins: [multi(), commonjs(), nodeResolve(), createReplaceUrlPlugin(assets), babelPlugin, terser()]
+        plugins: [
+            multi(),
+            commonjs(),
+            nodeResolve(),
+            createReplaceUrlPlugin(assets),
+            babelPlugin,
+            terser(),
+        ],
     };
     const bundle = await rollup(rollupConfig);
-    const {output} = await bundle.generate({
-        format: 'iife',
-        name: `bundle`
+    const { output } = await bundle.generate({
+        format: "iife",
+        name: `bundle`,
     });
     const code = output[0].code;
     return code;
 }
 
 function buildAppleAssociatedAppsFile(clients) {
-    const appIds = clients.map(c => c.appleAssociatedAppId).filter(id => !!id);
+    const appIds = clients
+        .map((c) => c.appleAssociatedAppId)
+        .filter((id) => !!id);
     return JSON.stringify({
-        "applinks": {
-            "apps": [],
-            "details": {
+        applinks: {
+            apps: [],
+            details: {
                 appIDs: appIds,
                 components: [
                     {
-                        "#": "/*",  // only open urls with a fragment, so you can still create links
-                    }
-                ]
+                        "#": "/*", // only open urls with a fragment, so you can still create
+                        // links
+                    },
+                ],
             },
         },
-        "webcredentials": {
-            "apps": appIds
-        }
+        webcredentials: { apps: appIds },
     });
 }
 
 async function buildCss(entryPath, targetDir, assets) {
     entryPath = path.join(projectDir, entryPath);
-    const assetUrlMapper = ({absolutePath}) => {
+    const assetUrlMapper = ({ absolutePath }) => {
         const relPath = absolutePath.substr(projectDir.length);
         return assets.resolve(path.join(targetDir, relPath));
     };
@@ -152,18 +182,18 @@ async function buildCss(entryPath, targetDir, assets) {
     const options = [
         postcssImport,
         cssvariables(),
-        autoprefixer({overrideBrowserslist: ["IE 11"], grid: "no-autoplace"}),
+        autoprefixer({ overrideBrowserslist: ["IE 11"], grid: "no-autoplace" }),
         flexbugsFixes(),
-        postcssUrl({url: assetUrlMapper}),
+        postcssUrl({ url: assetUrlMapper }),
     ];
     const cssBundler = postcss(options);
-    const result = await cssBundler.process(preCss, {from: entryPath});
+    const result = await cssBundler.process(preCss, { from: entryPath });
     return result.css;
 }
 
 async function removeDirIfExists(targetDir) {
     try {
-        await fs.rmdir(targetDir, {recursive: true});
+        await fs.rmdir(targetDir, { recursive: true });
     } catch (err) {
         if (err.code !== "ENOENT") {
             throw err;
@@ -173,14 +203,17 @@ async function removeDirIfExists(targetDir) {
 
 async function copyFolder(srcRoot, dstRoot, filter = null, assets = null) {
     assets = assets || new AssetMap(dstRoot);
-    const dirEnts = await fs.readdir(srcRoot, {withFileTypes: true});
+    const dirEnts = await fs.readdir(srcRoot, { withFileTypes: true });
     for (const dirEnt of dirEnts) {
         const dstPath = path.join(dstRoot, dirEnt.name);
         const srcPath = path.join(srcRoot, dirEnt.name);
         if (dirEnt.isDirectory()) {
             await fs.mkdir(dstPath);
             await copyFolder(srcPath, dstPath, filter, assets);
-        } else if ((dirEnt.isFile() || dirEnt.isSymbolicLink()) && (!filter || filter(srcPath))) {
+        } else if (
+            (dirEnt.isFile() || dirEnt.isSymbolicLink()) &&
+            (!filter || filter(srcPath))
+        ) {
             const content = await fs.readFile(srcPath);
             await assets.write(dstPath, content);
         }
@@ -199,7 +232,8 @@ class AssetMap {
         // remove last / if any, so substr in create works well
         this._targetDir = path.resolve(targetDir);
         this._assets = new Map();
-        // hashes for unhashed resources so changes in these resources also contribute to the hashForAll
+        // hashes for unhashed resources so changes in these resources also
+        // contribute to the hashForAll
         this._unhashedHashes = [];
     }
 
@@ -207,7 +241,9 @@ class AssetMap {
         let relPath = resourcePath;
         if (path.isAbsolute(resourcePath)) {
             if (!resourcePath.startsWith(this._targetDir)) {
-                throw new Error(`absolute path ${resourcePath} that is not within target dir ${this._targetDir}`);
+                throw new Error(
+                    `absolute path ${resourcePath} that is not within target dir ${this._targetDir}`
+                );
             }
             relPath = resourcePath.substr(this._targetDir.length + 1); // + 1 for the /
         }
@@ -256,18 +292,27 @@ class AssetMap {
         const relPath = this._toRelPath(resourcePath);
         const result = this._assets.get(relPath);
         if (!result) {
-            throw new Error(`unknown path: ${relPath}, only know ${Array.from(this._assets.keys()).join(", ")}`);
+            throw new Error(
+                `unknown path: ${relPath}, only know ${Array.from(
+                    this._assets.keys()
+                ).join(", ")}`
+            );
         }
         return result;
     }
 
     addSubMap(assetMap) {
         if (!assetMap.directory.startsWith(this.directory)) {
-            throw new Error(`map directory doesn't start with this directory: ${assetMap.directory} ${this.directory}`);
+            throw new Error(
+                `map directory doesn't start with this directory: ${assetMap.directory} ${this.directory}`
+            );
         }
         const relSubRoot = assetMap.directory.substr(this.directory.length + 1);
         for (const [key, value] of assetMap._assets.entries()) {
-            this._assets.set(path.join(relSubRoot, key), path.join(relSubRoot, value));
+            this._assets.set(
+                path.join(relSubRoot, key),
+                path.join(relSubRoot, value)
+            );
         }
     }
 
@@ -292,15 +337,19 @@ class AssetMap {
     }
 
     hashForAll() {
-        const globalHashAssets = Array.from(this).map(([, resolved]) => resolved);
+        const globalHashAssets = Array.from(this).map(
+            ([, resolved]) => resolved
+        );
         globalHashAssets.push(...this._unhashedHashes);
         globalHashAssets.sort();
         return contentHash(globalHashAssets.join(","));
     }
 
     addToHashForAll(resourcePath, content) {
-        this._unhashedHashes.push(`${resourcePath}-${contentHash(Buffer.from(content))}`);
+        this._unhashedHashes.push(
+            `${resourcePath}-${contentHash(Buffer.from(content))}`
+        );
     }
 }
 
-build().catch(err => console.error(err));
+build().catch((err) => console.error(err));

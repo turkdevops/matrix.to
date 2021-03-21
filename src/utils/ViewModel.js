@@ -22,7 +22,7 @@ export class EventEmitter {
     emit(name, ...values) {
         const handlers = this._handlersByName[name];
         if (handlers) {
-            for(const h of handlers) {
+            for (const h of handlers) {
                 h(...values);
             }
         }
@@ -36,7 +36,7 @@ export class EventEmitter {
         handlers.add(callback);
         return () => {
             this.off(name, callback);
-        }
+        };
     }
 
     off(name, callback) {
@@ -60,19 +60,32 @@ export class ViewModel extends EventEmitter {
         this.emit("change");
     }
 
-    get request() { return this._options.request; }
-    get origin() { return this._options.origin; }
-    get openLink() { return this._options.openLink; }
-    get platforms() { return this._options.platforms; }
-    get preferences() { return this._options.preferences; }
+    get request() {
+        return this._options.request;
+    }
+    get origin() {
+        return this._options.origin;
+    }
+    get openLink() {
+        return this._options.openLink;
+    }
+    get platforms() {
+        return this._options.platforms;
+    }
+    get preferences() {
+        return this._options.preferences;
+    }
 
     childOptions(options = {}) {
-        return Object.assign({
-            request: this.request,
-            origin: this.origin,
-            openLink: this.openLink,
-            platforms: this.platforms,
-            preferences: this.preferences,
-        }, options);
+        return Object.assign(
+            {
+                request: this.request,
+                origin: this.origin,
+                openLink: this.openLink,
+                platforms: this.platforms,
+                preferences: this.preferences,
+            },
+            options
+        );
     }
 }

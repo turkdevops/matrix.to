@@ -14,19 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {createEnum} from "../utils/enum.js";
+import { createEnum } from "../utils/enum.js";
 export const Maturity = createEnum("Alpha", "Beta", "Stable");
-export {LinkKind} from "../Link.js";
-export {Platform} from "../Platform.js";
+export { LinkKind } from "../Link.js";
+export { Platform } from "../Platform.js";
 
 export class AppleStoreLink {
     constructor(org, appId) {
-    	this._org = org;
-    	this._appId = appId;
+        this._org = org;
+        this._appId = appId;
     }
 
     createInstallURL(link) {
-        return `https://apps.apple.com/app/${encodeURIComponent(this._org)}/${encodeURIComponent(this._appId)}`;
+        return `https://apps.apple.com/app/${encodeURIComponent(
+            this._org
+        )}/${encodeURIComponent(this._appId)}`;
     }
 
     get channelId() {
@@ -40,13 +42,15 @@ export class AppleStoreLink {
 
 export class PlayStoreLink {
     constructor(appId) {
-    	this._appId = appId;
+        this._appId = appId;
     }
 
     createInstallURL(link) {
-        return `https://play.google.com/store/apps/details?id=${encodeURIComponent(this._appId)}&referrer=${encodeURIComponent(link.identifier)}`;
+        return `https://play.google.com/store/apps/details?id=${encodeURIComponent(
+            this._appId
+        )}&referrer=${encodeURIComponent(link.identifier)}`;
     }
-      
+
     get channelId() {
         return "play-store";
     }
@@ -58,11 +62,13 @@ export class PlayStoreLink {
 
 export class FDroidLink {
     constructor(appId) {
-    	this._appId = appId;
+        this._appId = appId;
     }
 
     createInstallURL(link) {
-        return `https://f-droid.org/packages/${encodeURIComponent(this._appId)}`;
+        return `https://f-droid.org/packages/${encodeURIComponent(
+            this._appId
+        )}`;
     }
 
     get channelId() {
@@ -80,7 +86,9 @@ export class FlathubLink {
     }
 
     createInstallURL(link) {
-        return `https://flathub.org/apps/details/${encodeURIComponent(this._appId)}`;
+        return `https://flathub.org/apps/details/${encodeURIComponent(
+            this._appId
+        )}`;
     }
 
     get channelId() {
@@ -94,7 +102,7 @@ export class FlathubLink {
 
 export class WebsiteLink {
     constructor(url) {
-    	this._url = url;
+        this._url = url;
     }
 
     createInstallURL(link) {
@@ -112,6 +120,6 @@ export class WebsiteLink {
 
 export const style = {
     code(text) {
-        return {type: "code", text};
-    }
-}
+        return { type: "code", text };
+    },
+};

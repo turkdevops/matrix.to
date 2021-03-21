@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {ViewModel} from "../utils/ViewModel.js";
-import {resolveServer} from "../preview/HomeServer.js";
+import { resolveServer } from "../preview/HomeServer.js";
+import { ViewModel } from "../utils/ViewModel.js";
 
 export class LoadServerPolicyViewModel extends ViewModel {
-	constructor(options) {
-		super(options);
-		this.server = options.server;
+    constructor(options) {
+        super(options);
+        this.server = options.server;
         this.message = `Looking up ${this.server} privacy policy…`;
         this.loading = false;
-	}
+    }
 
     async load() {
         this.loading = true;

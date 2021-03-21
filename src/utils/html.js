@@ -18,8 +18,13 @@ limitations under the License.
 // DOM helper functions
 
 export function isChildren(children) {
-    // children should be an not-object (that's the attributes), or a domnode, or an array
-    return typeof children !== "object" || !!children.nodeType || Array.isArray(children);
+    // children should be an not-object (that's the attributes), or a domnode, or
+    // an array
+    return (
+        typeof children !== "object" ||
+        !!children.nodeType ||
+        Array.isArray(children)
+    );
 }
 
 export function classNames(obj, value) {
@@ -63,7 +68,11 @@ export function elNS(ns, elementName, attributes, children) {
 
     if (attributes) {
         for (let [name, value] of Object.entries(attributes)) {
-            if (name === "className" && typeof value === "object" && value !== null) {
+            if (
+                name === "className" &&
+                typeof value === "object" &&
+                value !== null
+            ) {
                 value = classNames(value);
             }
             setAttribute(e, name, value);
@@ -93,19 +102,47 @@ export const SVG_NS = "http://www.w3.org/2000/svg";
 
 export const TAG_NAMES = {
     [HTML_NS]: [
-        "br", "a", "ol", "ul", "li", "div", "h1", "h2", "h3", "h4", "h5", "h6",
-        "p", "strong", "em", "span", "img", "section", "main", "article", "aside",
-        "pre", "button", "time", "input", "textarea", "label", "form", "progress", "output", "code"],
-    [SVG_NS]: ["svg", "circle"]
+        "br",
+        "a",
+        "ol",
+        "ul",
+        "li",
+        "div",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "p",
+        "strong",
+        "em",
+        "span",
+        "img",
+        "section",
+        "main",
+        "article",
+        "aside",
+        "pre",
+        "button",
+        "time",
+        "input",
+        "textarea",
+        "label",
+        "form",
+        "progress",
+        "output",
+        "code",
+    ],
+    [SVG_NS]: ["svg", "circle"],
 };
 
 export const tag = {};
 
-
 for (const [ns, tags] of Object.entries(TAG_NAMES)) {
     for (const tagName of tags) {
-        tag[tagName] = function(attributes, children) {
+        tag[tagName] = function (attributes, children) {
             return elNS(ns, tagName, attributes, children);
-        }
+        };
     }
 }

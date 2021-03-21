@@ -15,11 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { setAttribute, text, isChildren, classNames, TAG_NAMES, HTML_NS, tag } from "./html.js";
+import {
+    classNames,
+    HTML_NS,
+    isChildren,
+    setAttribute,
+    tag,
+    TAG_NAMES,
+    text,
+} from "./html.js";
 
 /**
-    Bindable template. Renders once, and allows bindings for given nodes. If you need
-    to change the structure on a condition, use a subtemplate (if)
+    Bindable template. Renders once, and allows bindings for given nodes. If you
+   need to change the structure on a condition, use a subtemplate (if)
 
     supports
         - event handlers (attribute fn value with name that starts with on)
@@ -29,7 +37,8 @@ import { setAttribute, text, isChildren, classNames, TAG_NAMES, HTML_NS, tag } f
         - className binding returning object with className => enabled map
         - add subviews inside the template
 */
-// TODO: should we rename this to BoundView or something? As opposed to StaticView ...
+// TODO: should we rename this to BoundView or something? As opposed to
+// StaticView ...
 export class TemplateView {
     constructor(value, render = undefined) {
         this._value = value;
@@ -63,7 +72,7 @@ export class TemplateView {
 
     _attach() {
         if (this._eventListeners) {
-            for (let {node, name, fn, useCapture} of this._eventListeners) {
+            for (let { node, name, fn, useCapture } of this._eventListeners) {
                 node.addEventListener(name, fn, useCapture);
             }
         }
@@ -71,7 +80,7 @@ export class TemplateView {
 
     _detach() {
         if (this._eventListeners) {
-            for (let {node, name, fn, useCapture} of this._eventListeners) {
+            for (let { node, name, fn, useCapture } of this._eventListeners) {
                 node.removeEventListener(name, fn, useCapture);
             }
         }
@@ -81,10 +90,13 @@ export class TemplateView {
         const builder = new TemplateBuilder(this);
         if (this._render) {
             this._root = this._render(builder, this._value);
-        } else if (this.render) {   // overriden in subclass
+        } else if (this.render) {
+            // overriden in subclass
             this._root = this.render(builder, this._value);
         } else {
-            throw new Error("no render function passed in, or overriden in subclass");
+            throw new Error(
+                "no render function passed in, or overriden in subclass"
+            );
         }
         const parentProvidesUpdates = options && options.parentProvidesUpdates;
         if (!parentProvidesUpdates) {
@@ -125,7 +137,7 @@ export class TemplateView {
         if (!this._eventListeners) {
             this._eventListeners = [];
         }
-        this._eventListeners.push({node, name, fn, useCapture});
+        this._eventListeners.push({ node, name, fn, useCapture });
     }
 
     _addBinding(bindingFn) {
@@ -171,7 +183,9 @@ class TemplateBuilder {
     }
 
     _addClassNamesBinding(node, obj) {
-        this._addAttributeBinding(node, "className", value => classNames(obj, value));
+        this._addAttributeBinding(node, "className", (value) =>
+            classNames(obj, value)
+        );
     }
 
     _addTextBinding(fn) {
@@ -182,7 +196,7 @@ class TemplateBuilder {
             const newValue = fn(this._value);
             if (prevValue !== newValue) {
                 prevValue = newValue;
-                node.textContent = newValue+"";
+                node.textContent = newValue + "";
             }
         };
 
@@ -191,17 +205,22 @@ class TemplateBuilder {
     }
 
     _setNodeAttributes(node, attributes) {
-        for(let [key, value] of Object.entries(attributes)) {
+        for (let [key, value] of Object.entries(attributes)) {
             const isFn = typeof value === "function";
             // binding for className as object of className => enabled
-            if (key === "className" && typeof value === "object" && value !== null) {
+            if (
+                key === "className" &&
+                typeof value === "object" &&
+                value !== null
+            ) {
                 if (objHasFns(value)) {
                     this._addClassNamesBinding(node, value);
                 } else {
                     setAttribute(node, key, classNames(value));
                 }
             } else if (key.startsWith("on") && key.length > 2 && isFn) {
-                const eventName = key.substr(2, 1).toLowerCase() + key.substr(3);
+                const eventName =
+                    key.substr(2, 1).toLowerCase() + key.substr(3);
                 const handler = value;
                 this._templateView._addEventListener(node, eventName, handler);
             } else if (isFn) {
@@ -226,7 +245,7 @@ class TemplateBuilder {
             node.appendChild(child);
         }
     }
-    
+
     _addReplaceNodeBinding(fn, renderNode) {
         let prevValue = fn(this._value);
         let node = renderNode(null);
@@ -259,7 +278,7 @@ class TemplateBuilder {
         }
 
         const node = document.createElementNS(ns, name);
-        
+
         if (attributes) {
             this._setNodeAttributes(node, attributes);
         }
@@ -270,8 +289,9 @@ class TemplateBuilder {
         return node;
     }
 
-    // this insert a view, and is not a view factory for `if`, so returns the root element to insert in the template
-    // you should not call t.view() and not use the result (e.g. attach the result to the template DOM tree).
+    // this insert a view, and is not a view factory for `if`, so returns the root
+    // element to insert in the template you should not call t.view() and not use
+    // the result (e.g. attach the result to the template DOM tree).
     view(view) {
         let root;
         try {
@@ -285,7 +305,7 @@ class TemplateBuilder {
 
     // sugar
     createTemplate(render) {
-        return vm => new TemplateView(vm, render);
+        return (vm) => new TemplateView(vm, render);
     }
 
     // map a value to a view, every time the value changes
@@ -293,7 +313,9 @@ class TemplateBuilder {
         return this._addReplaceNodeBinding(mapFn, (prevNode) => {
             if (prevNode && prevNode.nodeType !== Node.COMMENT_NODE) {
                 const subViews = this._templateView._subViews;
-                const viewIdx = subViews.findIndex(v => v.root() === prevNode);
+                const viewIdx = subViews.findIndex(
+                    (v) => v.root() === prevNode
+                );
                 if (viewIdx !== -1) {
                     const [view] = subViews.splice(viewIdx, 1);
                     view.unmount();
@@ -311,12 +333,11 @@ class TemplateBuilder {
     // creates a conditional subtemplate
     if(fn, viewCreator) {
         return this.mapView(
-            value => !!fn(value),
-            enabled => enabled ? viewCreator(this._value) : null
+            (value) => !!fn(value),
+            (enabled) => (enabled ? viewCreator(this._value) : null)
         );
     }
 }
-
 
 function errorToDOM(error) {
     const stack = new Error().stack;
@@ -330,7 +351,7 @@ function errorToDOM(error) {
 }
 
 function objHasFns(obj) {
-    for(const value of Object.values(obj)) {
+    for (const value of Object.values(obj)) {
         if (typeof value === "function") {
             return true;
         }
@@ -340,7 +361,7 @@ function objHasFns(obj) {
 
 for (const [ns, tags] of Object.entries(TAG_NAMES)) {
     for (const tag of tags) {
-        TemplateBuilder.prototype[tag] = function(attributes, children) {
+        TemplateBuilder.prototype[tag] = function (attributes, children) {
             return this.elNS(ns, tag, attributes, children);
         };
     }
