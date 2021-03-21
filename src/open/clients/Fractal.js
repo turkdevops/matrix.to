@@ -14,40 +14,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {Maturity, Platform, LinkKind, FlathubLink} from "../types.js";
+import {FlathubLink, LinkKind, Maturity, Platform} from "../types.js";
 
 /**
  * Information on how to deep link to a given matrix client.
  */
 export class Fractal {
-	get id() { return "fractal"; }
-	get name() { return "Fractal"; }
-    get icon() { return "images/client-icons/fractal.png"; }
-    get author() { return "Daniel Garcia Moreno"; }
-    get homepage() { return "https://gitlab.gnome.org/GNOME/fractal"; }
-	get platforms() { return [Platform.Linux]; }
-	get description() { return 'Fractal is a Matrix Client written in Rust.'; }
-	getMaturity(platform) { return Maturity.Beta; }
-	getDeepLink(platform, link) {}
-	canInterceptMatrixToLinks(platform) { return false; }
+  get id() { return "fractal"; }
+  get name() { return "Fractal"; }
+  get icon() { return "images/client-icons/fractal.png"; }
+  get author() { return "Daniel Garcia Moreno"; }
+  get homepage() { return "https://gitlab.gnome.org/GNOME/fractal"; }
+  get platforms() { return [ Platform.Linux ]; }
+  get description() { return 'Fractal is a Matrix Client written in Rust.'; }
+  getMaturity(platform) { return Maturity.Beta; }
+  getDeepLink(platform, link) {}
+  canInterceptMatrixToLinks(platform) { return false; }
 
-	getLinkInstructions(platform, link) {
-        if (link.kind === LinkKind.User || link.kind === LinkKind.Room) {
-            return "Click the '+' button in the top right and paste the identifier";
-        }
-	}
-
-    getCopyString(platform, link) {
-        if (link.kind === LinkKind.User || link.kind === LinkKind.Room) {
-            return link.identifier;
-        }
+  getLinkInstructions(platform, link) {
+    if (link.kind === LinkKind.User || link.kind === LinkKind.Room) {
+      return "Click the '+' button in the top right and paste the identifier";
     }
+  }
 
-	getInstallLinks(platform) {
-        if (platform === Platform.Linux) {
-            return [new FlathubLink("org.gnome.Fractal")];
-        }
+  getCopyString(platform, link) {
+    if (link.kind === LinkKind.User || link.kind === LinkKind.Room) {
+      return link.identifier;
     }
+  }
 
-    getPreferredWebInstance(link) {}
+  getInstallLinks(platform) {
+    if (platform === Platform.Linux) {
+      return [ new FlathubLink("org.gnome.Fractal") ];
+    }
+  }
+
+  getPreferredWebInstance(link) {}
 }
