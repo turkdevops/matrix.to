@@ -14,23 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {Link} from "../Link.js";
-import {PreviewViewModel} from "../preview/PreviewViewModel.js";
-import {ViewModel} from "../utils/ViewModel.js";
+import { Link } from "../Link.js";
+import { PreviewViewModel } from "../preview/PreviewViewModel.js";
+import { ViewModel } from "../utils/ViewModel.js";
 
 export class CreateLinkViewModel extends ViewModel {
-  constructor(options) {
-    super(options);
-    this._link = null;
-    this.previewViewModel = null;
-  }
-
-  validateIdentifier(identifier) { return Link.validateIdentifier(identifier); }
-
-  async createLink(identifier) {
-    this._link = Link.parse(identifier);
-    if (this._link) {
-      this.openLink("#" + this._link.toFragment());
+    constructor(options) {
+        super(options);
+        this._link = null;
+        this.previewViewModel = null;
     }
-  }
+
+    validateIdentifier(identifier) {
+        return Link.validateIdentifier(identifier);
+    }
+
+    async createLink(identifier) {
+        this._link = Link.parse(identifier);
+        if (this._link) {
+            this.openLink("#" + this._link.toFragment());
+        }
+    }
 }
