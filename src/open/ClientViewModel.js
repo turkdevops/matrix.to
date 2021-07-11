@@ -43,7 +43,7 @@ export class ClientViewModel extends ViewModel {
 		this._webPlatform = matchingPlatforms.find(p => isWebPlatform(p));
 		this._nativePlatform = matchingPlatforms.find(p => !isWebPlatform(p));
         const preferredPlatform = matchingPlatforms.find(p => p === this.preferences.platform);
-		this._proposedPlatform = preferredPlatform || this._nativePlatform || webPlatform;
+		this._proposedPlatform = preferredPlatform || this._nativePlatform || this._webPlatform;
 
         this.openActions = this._createOpenActions();
 		this.installActions = this._createInstallActions();
@@ -170,9 +170,9 @@ export class ClientViewModel extends ViewModel {
         return this._client.icon;
     }
 
-	get stage() {
-		return this._showOpen ? "open" : "install";
-	}
+    get stage() {
+        return this._showOpen ? "open" : "install";
+    }
 
 	get textInstructions() {
         let instructions = this._client.getLinkInstructions(this._proposedPlatform, this._link);

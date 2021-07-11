@@ -53,12 +53,12 @@ export class ClientView extends TemplateView {
 				]),
 				t.img({className: "clientIcon", src: vm.iconUrl})
 			]),
-			t.mapView(vm => vm.stage, stage => {
-				switch (stage) {
-					case "open": return new OpenClientView(vm);
-					case "install": return new InstallClientView(vm);
-				}
-			}),
+            t.mapView(vm => vm.stage, stage => {
+                switch (stage) {
+                    case "open": return new OpenClientView(vm);
+                    case "install": return new InstallClientView(vm);
+                }
+            }),
 		]);
 	}
 }
